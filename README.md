@@ -171,15 +171,27 @@ AI-8Puzzle-Visualizer/
 
 ## Screenshots
 
-Add screenshots here before final submission.
+## Screenshots
 
-Suggested screenshots:
+### Initial Setup and Puzzle Input
 
-1. Home page and puzzle input interface
-2. A* search process showing `g(n)`, `h(n)`, and `f(n)`
-3. Current animated puzzle state
-4. Final solution path and performance summary
-5. Algorithm comparison and A* information section
+![Initial setup showing student details, initial state, goal state, heuristic selection, and controls](01-initial-setup.png)
+
+### Current Puzzle State
+
+![Current state board during the A star puzzle visualization](02-current-state.png)
+
+### Live A* Search Process
+
+![Search process statistics including the current node, frontier, explored states, g n, h n, and f n](03-search-process.png)
+
+### Solution Path and Summary
+
+![Final solution summary and complete solution path](04-solution-path.png)
+
+### Algorithm Theory and Comparison
+
+![Algorithm comparison table and A star information section](05-theory-comparison.png)
 
 ## References
 
