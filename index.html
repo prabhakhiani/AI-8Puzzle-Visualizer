@@ -3,24 +3,242 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive 8-Puzzle solver using A* Search with Manhattan Distance and Misplaced Tiles heuristics.">
   <title>AI 8-Puzzle Visualizer | A* Search</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
   <header class="header">
-    <h1>Interactive 8-Puzzle Problem Solver</h1>
-    <p>Artificial Intelligence Case Study — A* Search Algorithm</p>
+    <div class="header-content">
+      <h1>Interactive 8-Puzzle Problem Solver</h1>
+      <p>Artificial Intelligence Case Study — A* Search Algorithm</p>
+      <p class="student-line">Student: Prabha Khiani | Algorithm Assigned: A* Search</p>
+    </div>
   </header>
 
+  <nav class="navbar" aria-label="Main navigation">
+    <a href="#home">Home</a>
+    <a href="#solver">Solver</a>
+    <a href="#comparison">Comparison</a>
+    <a href="#about">About A*</a>
+  </nav>
+
   <main class="container">
-    <section class="welcome-card">
-      <h2>Welcome</h2>
+    <section id="home" class="welcome-card">
+      <h2>About the 8-Puzzle</h2>
       <p>
-        This application solves the 8-Puzzle using the A* informed search algorithm.
-        It supports Misplaced Tiles and Manhattan Distance heuristics.
+        The 8-Puzzle is a state-space search problem consisting of eight numbered
+        tiles and one blank space arranged in a 3 × 3 grid. A legal move swaps the
+        blank with one adjacent tile. This application finds the lowest-cost solution
+        path using the A* informed search algorithm.
+      </p>
+      <p>
+        Select either <strong>Manhattan Distance</strong> or
+        <strong>Misplaced Tiles</strong> as the heuristic function, then run A* to
+        observe the search process and final path.
       </p>
     </section>
+
+    <section id="solver" class="section-card">
+      <div class="section-heading">
+        <h2>A* Puzzle Solver</h2>
+        <p>Enter your own configuration or generate a solvable random puzzle.</p>
+      </div>
+
+      <div class="input-layout">
+        <article class="input-card">
+          <h3>Initial State</h3>
+          <p class="input-help">Use numbers 1–8 and 0 for the blank tile.</p>
+          <div id="initialInputs" class="tile-input-grid" aria-label="Initial puzzle state"></div>
+        </article>
+
+        <article class="input-card">
+          <h3>Goal State</h3>
+          <p class="input-help">Default goal: 1 2 3 / 4 5 6 / 7 8 blank.</p>
+          <div id="goalInputs" class="tile-input-grid" aria-label="Goal puzzle state"></div>
+        </article>
+      </div>
+
+      <div class="settings-row">
+        <label for="heuristicSelect">
+          Heuristic
+          <select id="heuristicSelect">
+            <option value="manhattan">Manhattan Distance</option>
+            <option value="misplaced">Misplaced Tiles</option>
+          </select>
+        </label>
+
+        <label for="speedSelect">
+          Animation Speed
+          <select id="speedSelect">
+            <option value="1200">Slow</option>
+            <option value="700" selected>Normal</option>
+            <option value="300">Fast</option>
+          </select>
+        </label>
+
+        <button id="randomButton" class="secondary-button" type="button">
+          Generate Random Solvable Puzzle
+        </button>
+      </div>
+
+      <div class="control-row">
+        <button id="runButton" class="primary-button" type="button">Run A*</button>
+        <button id="pauseButton" class="secondary-button" type="button" disabled>Pause</button>
+        <button id="resumeButton" class="secondary-button" type="button" disabled>Resume</button>
+        <button id="previousButton" class="secondary-button" type="button" disabled>Previous Step</button>
+        <button id="nextButton" class="secondary-button" type="button" disabled>Next Step</button>
+        <button id="resetButton" class="danger-button" type="button">Reset</button>
+      </div>
+
+      <p id="messageBox" class="message-box" role="status">
+        Enter an initial state or use the random-puzzle button, then run A*.
+      </p>
+    </section>
+
+    <section class="visualization-layout">
+      <article class="board-card">
+        <h3>Initial State</h3>
+        <div id="initialBoard" class="puzzle-board" aria-label="Initial board"></div>
+      </article>
+
+      <article class="board-card current-board-card">
+        <h3>Current State</h3>
+        <div id="currentBoard" class="puzzle-board" aria-label="Current board"></div>
+        <p id="stepLabel" class="step-label">Step: —</p>
+      </article>
+
+      <article class="board-card">
+        <h3>Goal State</h3>
+        <div id="goalBoard" class="puzzle-board" aria-label="Goal board"></div>
+      </article>
+    </section>
+
+    <section class="section-card">
+      <div class="section-heading">
+        <h2>Live A* Search Process</h2>
+        <p>Values update as A* expands the lowest \(f(n)=g(n)+h(n)\) state.</p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item"><span>Search Status</span><strong id="searchStatus">Not started</strong></div>
+        <div class="stat-item"><span>Current Node</span><strong id="currentNode">—</strong></div>
+        <div class="stat-item"><span>Parent Node</span><strong id="parentNode">—</strong></div>
+        <div class="stat-item"><span>Current Depth</span><strong id="currentDepth">0</strong></div>
+        <div class="stat-item"><span>Nodes Generated</span><strong id="nodesGenerated">0</strong></div>
+        <div class="stat-item"><span>Nodes Expanded</span><strong id="nodesExpanded">0</strong></div>
+        <div class="stat-item"><span>Frontier Size</span><strong id="frontierSize">0</strong></div>
+        <div class="stat-item"><span>Explored Size</span><strong id="exploredSize">0</strong></div>
+        <div class="stat-item"><span>Path Cost g(n)</span><strong id="gValue">0</strong></div>
+        <div class="stat-item"><span>Heuristic h(n)</span><strong id="hValue">0</strong></div>
+        <div class="stat-item"><span>Evaluation f(n)</span><strong id="fValue">0</strong></div>
+        <div class="stat-item"><span>Maximum Depth</span><strong id="maxDepth">0</strong></div>
+      </div>
+
+      <div class="search-lists">
+        <div>
+          <h3>Frontier (Open List)</h3>
+          <div id="frontierList" class="state-list">No states yet.</div>
+        </div>
+        <div>
+          <h3>Explored (Closed List)</h3>
+          <div id="exploredList" class="state-list">No states yet.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <div class="section-heading">
+        <h2>Solution Summary</h2>
+        <p>Final results are shown after A* finds the goal state.</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-item"><span>Solution</span><strong id="solutionResult">Not run</strong></div>
+        <div class="summary-item"><span>Total Moves</span><strong id="totalMoves">—</strong></div>
+        <div class="summary-item"><span>Nodes Generated</span><strong id="summaryGenerated">—</strong></div>
+        <div class="summary-item"><span>Nodes Expanded</span><strong id="summaryExpanded">—</strong></div>
+        <div class="summary-item"><span>Maximum Depth</span><strong id="summaryDepth">—</strong></div>
+        <div class="summary-item"><span>Execution Time</span><strong id="executionTime">—</strong></div>
+        <div class="summary-item"><span>Path Cost</span><strong id="pathCost">—</strong></div>
+        <div class="summary-item"><span>Approx. Memory Usage</span><strong id="memoryUsage">—</strong></div>
+      </div>
+
+      <h3 class="subheading">Final Solution Path</h3>
+      <div id="solutionPath" class="solution-path">
+        Run the A* search to display the solution states here.
+      </div>
+    </section>
+
+    <section id="comparison" class="section-card">
+      <div class="section-heading">
+        <h2>Algorithm Comparison</h2>
+        <p>Conceptual performance comparison for the same 8-puzzle problem.</p>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Algorithm</th>
+              <th>Search Type</th>
+              <th>Complete</th>
+              <th>Optimal</th>
+              <th>Time Complexity</th>
+              <th>Space Complexity</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>BFS</td><td>Uninformed</td><td>Yes</td><td>Yes</td><td>\(O(b^d)\)</td><td>\(O(b^d)\)</td></tr>
+            <tr><td>DFS</td><td>Uninformed</td><td>No*</td><td>No</td><td>\(O(b^m)\)</td><td>\(O(bm)\)</td></tr>
+            <tr><td>DLS</td><td>Uninformed</td><td>No*</td><td>No</td><td>\(O(b^l)\)</td><td>\(O(bl)\)</td></tr>
+            <tr><td>IDDLS</td><td>Uninformed</td><td>Yes</td><td>Yes</td><td>\(O(b^d)\)</td><td>\(O(bd)\)</td></tr>
+            <tr><td>GBFS</td><td>Informed</td><td>No*</td><td>No</td><td>Depends on heuristic</td><td>High</td></tr>
+            <tr class="highlight-row"><td>A*</td><td>Informed</td><td>Yes†</td><td>Yes†</td><td>Exponential worst case</td><td>Exponential worst case</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-note">* Depends on conditions. † With an admissible/consistent heuristic and positive step costs.</p>
+    </section>
+
+    <section id="about" class="section-card">
+      <div class="section-heading">
+        <h2>About A* Search</h2>
+      </div>
+
+      <div class="algorithm-info-grid">
+        <article>
+          <h3>Description</h3>
+          <p>A* is an informed best-first search algorithm that combines the cost already spent with an estimate of the remaining cost.</p>
+        </article>
+        <article>
+          <h3>Working Principle</h3>
+          <p>A* repeatedly expands the node with smallest \(f(n)=g(n)+h(n)\), where \(g(n)\) is path cost and \(h(n)\) is a heuristic estimate.</p>
+        </article>
+        <article>
+          <h3>Advantages</h3>
+          <p>It is complete and optimal when using an admissible, consistent heuristic. A good heuristic reduces unnecessary expansions.</p>
+        </article>
+        <article>
+          <h3>Limitations</h3>
+          <p>A* can consume substantial memory because it stores states in its frontier and explored set, especially for difficult puzzles.</p>
+        </article>
+        <article>
+          <h3>Misplaced Tiles</h3>
+          <p>Counts numbered tiles that are not in their goal positions. The blank tile is not counted.</p>
+        </article>
+        <article>
+          <h3>Manhattan Distance</h3>
+          <p>Adds the horizontal and vertical distance of every numbered tile from its goal position. The blank tile is not counted.</p>
+        </article>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <p>Artificial Intelligence — Interactive 8-Puzzle Visualizer | A* Search Implementation</p>
+  </footer>
 
   <script src="js/app.js"></script>
 </body>
